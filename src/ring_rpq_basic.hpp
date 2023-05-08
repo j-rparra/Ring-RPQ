@@ -918,7 +918,7 @@ private:
         }
     };
 
-    bool rpq_var_to_var_obtain_o(RpqAutomata &A,
+    void rpq_var_to_var_obtain_o(RpqAutomata &A,
                                  std::vector<uint64_t> &object_vector,
                                  std::vector<word_t> &B_array,
                                  high_resolution_clock::time_point start) {
