@@ -23,8 +23,8 @@
 #include <chrono>
 #include <set>
 #include <unordered_set>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <sdsl/init_array.hpp>
 
 #include "bwt.hpp"
@@ -893,7 +893,7 @@ private:
 
 
 
-    bool rpq_var_to_var_obtain_o_with_bound(RpqAutomata &A, std::vector<uint64_t> &object_vector,
+    void rpq_var_to_var_obtain_o_with_bound(RpqAutomata &A, std::vector<uint64_t> &object_vector,
                                             std::vector<word_t> &B_array, high_resolution_clock::time_point start,
                                             uint64_t bound) {
 
@@ -918,7 +918,7 @@ private:
         }
     };
 
-    bool rpq_var_to_var_obtain_o(RpqAutomata &A,
+    void rpq_var_to_var_obtain_o(RpqAutomata &A,
                                  std::vector<uint64_t> &object_vector,
                                  std::vector<word_t> &B_array,
                                  high_resolution_clock::time_point start) {

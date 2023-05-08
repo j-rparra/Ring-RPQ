@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.7)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 include(AppendCompilerFlags)
+set(CMAKE_OSX_ARCHITECTURES x86_64)
 project(Ring-RPQ)
 set(CMAKE_PROJECT_NAME "Ring RPQ")
 
