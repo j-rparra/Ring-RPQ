@@ -4,6 +4,7 @@ include(AppendCompilerFlags)
 set(CMAKE_OSX_ARCHITECTURES x86_64)
 project(Ring-RPQ)
 set(CMAKE_PROJECT_NAME "Ring RPQ")
+set(CMAKE_OSX_ARCHITECTURES x86_64)
 
 #Change to "Debug" when you need it
 set(CMAKE_BUILD_TYPE "Release")
