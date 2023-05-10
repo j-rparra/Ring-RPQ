@@ -35,7 +35,7 @@
 #include "RpqTree.hpp"
 #include "query_config.hpp"
 #include "parse_query.cpp"
-#include "wt_intersection.hpp"
+#include "wt_helper.hpp"
 #include "selectivity.hpp"
 
 #define ELEMENTS 0
@@ -662,7 +662,8 @@ private:
 
         //PART1: Finding predicates from the object whose range in L_p is I_p
         std::vector<std::pair<uint64_t, std::pair<uint64_t, uint64_t>>> pred_vec;
-        L_P.all_active_p_values_in_range_test<word_t>(I_p.left(), I_p.right(), B_array, current_D, pred_vec);
+        L_P.all_active_p_values_in_range_test<word_t>(I_p.left(), I_p.right(), B_array,
+                                                      current_D, pred_vec);
 
         std::pair<uint64_t, uint64_t> interval;
         uint64_t c;
@@ -674,7 +675,8 @@ private:
             c = L_S.get_C(pred_vec[i].first);
             std::vector<std::tuple<uint64_t, word_t, std::pair<uint64_t, uint64_t>>> subj_vec;
             L_S.all_active_s_values_in_range_test<word_t>(c + interval.first, c + interval.second,
-                                                          D_array, (word_t) A.next(current_D, pred_vec[i].first, BWD)
+                                                          D_array,
+                                                          (word_t) A.next(current_D, pred_vec[i].first, BWD)
                                                           ,subj_vec);
 
             //PART3: Map the range of each subject to the range of objects
@@ -966,6 +968,7 @@ private:
 
         if (A.atFinal(current_D, BWD)) {
             solutions.emplace_back(initial_object, initial_object);
+            markD(initial_object, L_S.max_level(), D_array, current_D);
         }
 
         bool time_out = false;
@@ -1004,12 +1007,13 @@ private:
                                                             L_P.get_C(initial_object + 1) - 1), current_D});
         if (A.atFinal(current_D, BWD)) {
             solutions.emplace_back(initial_object, initial_object);
+            markD(initial_object, L_S.max_level(), D_array, current_D);
         }
 
         while (!ist_container.empty()) {
             auto ist_top = first_element(ist_container);
             ist_container.pop();
-            next_step_const_to_var_verbose(A, B_array, D_array, ist_top.current_D, ist_top.interval,
+            next_step_const_to_var(A, B_array, D_array, ist_top.current_D, ist_top.interval,
                                 initial_object, ist_container, solutions, const_to_var);
 
             /*next_step_const_to_var(A, B_array, D_array, ist_top.current_D, ist_top.interval,
@@ -1772,7 +1776,8 @@ public:
         duration<double> time_span;
         start = high_resolution_clock::now();
 
-        _rpq_const_s_to_var_o(A, predicates_map, B_array, initial_object, output_subjects, false, start);
+        _rpq_const_s_to_var_o(A, predicates_map, B_array, initial_object,
+                              output_subjects, false, start);
 
         for (std::unordered_map<uint64_t, uint64_t>::iterator it = m.begin(); it != m.end(); it++) {
             L_P.unmark<word_t>(it->first, B_array);

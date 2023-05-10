@@ -35,7 +35,7 @@
 #include "RpqTree.hpp"
 #include "query_config.hpp"
 #include "parse_query.cpp"
-#include "wt_intersection.hpp"
+#include "wt_helper.hpp"
 #include "selectivity.hpp"
 
 #define ELEMENTS 0

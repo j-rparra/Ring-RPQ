@@ -31,8 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Created by Adrián on 17/5/22.
 //
 
-#ifndef RING_RPQ_WT_INTERSECTION_HPP
-#define RING_RPQ_WT_INTERSECTION_HPP
+#ifndef RING_RPQ_WT_HELPER_HPP
+#define RING_RPQ_WT_HELPER_HPP
 
 #include <algorithm>
 #include <utility>
@@ -93,6 +93,42 @@ namespace sdsl {
         return res;
     }
 
+
+    /***
+        * Next value of an intersection between WTs on the same alphabet greater than
+        * a given value c.
+        * @param A given value c.
+        * @pre In each iteration c has to be greater or equal than the previous c.
+        * @return
+        */
+    template<class word_t>
+    void markD(uint64_t c, uint64_t max_level, initializable_array<word_t>& D_wt, word_t D){
+
+
+        uint64_t pos = 1, mid;
+        //TODO check if the range is [1, n] or [0, n-1]
+        range_type sigma = range_type{0, (1ULL << max_level) -1};
+        while (sigma[0] != sigma[1]) { //Find the position to update
+            mid = (sigma[0] + sigma[1])>>1;
+            if(c > mid){//Right child
+                pos = 2*pos+1;
+                sigma = range_type{mid+1, sigma[1]};
+            }else{      //Left child
+                pos = 2*pos;
+                sigma = range_type{sigma[0], mid};
+            }
+        }
+        word_t tmp = D_wt.atPos(pos);
+        D = D & ~tmp;
+        D_wt[pos] = tmp | D;
+        while (pos != 1){
+            tmp = (pos & 0x1) ? (D_wt[pos] & D_wt[pos-1]) : (D_wt[pos] & D_wt[pos+1]);
+            if(!tmp) return; //Empty -> nothing to do
+            D_wt[pos >> 1] = tmp; //set parent
+            pos = pos >> 1; //move to parent
+        }
+    }
+
 }
 
-#endif //RING_RPQ_WT_INTERSECTION_HPP
+#endif //RING_RPQ_WT_HELPER_HPP

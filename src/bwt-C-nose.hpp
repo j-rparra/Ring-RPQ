@@ -22,7 +22,7 @@
 #define BWT_NOSE_T
 
 #include "Config.hpp"
-#include "wt_intersection.hpp"
+#include "wt_helper.hpp"
 
 using namespace std;
 
@@ -145,6 +145,10 @@ class bwt_nose
         uint64_t nElems(uint64_t val)
         {
             return get_C(val+1)-get_C(val);
+        }
+
+        inline uint64_t max_level(){
+            return L.max_level;
         }
 
         pair<uint64_t, uint64_t> 

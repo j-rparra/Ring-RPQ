@@ -263,6 +263,10 @@ int main(int argc, char **argv) {
                 total_time = time_span.count();
 
                 cout << q << ";" << query_output.size() << ";" << (uint64_t) (total_time * 1000000000ULL) << endl;
+
+                for(auto &v : query_output){
+                    std::cout << v.first << " " << v.second << std::endl;
+                }
             } else skip_flag = false;
         } else {
             cout << q << ";0;0" << endl;
