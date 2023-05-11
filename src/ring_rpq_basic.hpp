@@ -1536,9 +1536,9 @@ public:
                 values_s.clear();
                 values_s = L_S.all_values_in_range(Is_p1.first, Is_p1.second);
                 for (uint64_t j = 0; !time_out && j < values_s.size(); ++j) {
-                    ret = o_set.insert(std::pair<uint64_t, uint64_t>(values_s[j], z_values[i].first));
+                    ret = o_set.insert(std::pair<uint64_t, uint64_t>(values_s[j], object));
                     if (ret.second == true)
-                        output.push_back(std::pair<uint64_t, uint64_t>(values_s[j], z_values[i].first));
+                        output.push_back(std::pair<uint64_t, uint64_t>(values_s[j], object));
                     stop = high_resolution_clock::now();
                     total_time = duration_cast<seconds>(stop - start).count();
                     time_out = (total_time > TIME_OUT);
