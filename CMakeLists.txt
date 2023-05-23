@@ -62,6 +62,9 @@ target_link_libraries(query-index-basic sdsl divsufsort divsufsort64 nfa)
 add_executable(query-index-split src/query-index-split.cpp)
 target_link_libraries(query-index-split sdsl divsufsort divsufsort64 nfa)
 
+add_executable(benchmark-split src/benchmark-split.cpp)
+target_link_libraries(benchmark-split sdsl divsufsort divsufsort64 nfa)
+
 add_executable(sort-dict src/utilities/sort-pos.cpp)
 target_link_libraries(sort-dict sdsl divsufsort divsufsort64 nfa)
 

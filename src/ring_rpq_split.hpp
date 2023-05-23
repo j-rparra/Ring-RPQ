@@ -39,7 +39,7 @@
 #include "selectivity.hpp"
 
 #define ELEMENTS 0
-#define RUN_QUERY 0
+#define RUN_QUERY 1
 
 using namespace std::chrono;
 
@@ -3159,10 +3159,10 @@ public:
             double total_time = 0.0;
             duration<double> time_span;
             start = high_resolution_clock::now();
-            auto pred = pos_pred_vec[i].id_pred;
+            auto pred = pos_pred_vec[i].pred_b;
             auto pred_rev = pred_reverse(pred);
             get_elements(pred_rev, elements);
-            std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos-1);
+            std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos_b-1);
             _rpq_var_to_var_splits_done(rpq_l, rpq_r, elements, predicates_map,
                                         B_array1, B_array2, true, solution, n_predicates,
                                         is_negated_pred, n_operators, is_a_path, start);
@@ -3176,10 +3176,10 @@ public:
             if(!rpq_l.empty() && !rpq_r.empty()) {
                 solution.clear();
                 start = high_resolution_clock::now();
-                pred = pos_pred_vec[i].id_pred;
+                pred = pos_pred_vec[i].pred_b;
                 pred_rev = pred_reverse(pred);
                 get_elements(pred_rev, elements);
-                std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos - 1);
+                std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos_b - 1);
 
 
                 _rpq_var_to_var_splits_done(rpq_l, rpq_r, elements, predicates_map,
@@ -3203,9 +3203,9 @@ public:
             double total_time = 0.0;
             duration<double> time_span;
             start = high_resolution_clock::now();
-            auto pred = pos_pred_vec[i].id_pred;
+            auto pred = pos_pred_vec[i].pred_e;
             get_elements(pred, elements);
-            std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos);
+            std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos_e);
             _rpq_var_to_var_splits_done(rpq_l, rpq_r, elements, predicates_map,
                                         B_array1, B_array2, true, solution, n_predicates,
                                         is_negated_pred, n_operators, is_a_path, start);
@@ -3217,9 +3217,9 @@ public:
             if(!rpq_l.empty() && !rpq_r.empty()) {
                 solution.clear();
                 start = high_resolution_clock::now();
-                pred = pos_pred_vec[i].id_pred;
+                pred = pos_pred_vec[i].pred_e;
                 get_elements(pred, elements);
-                std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos);
+                std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos_e);
                 _rpq_var_to_var_splits_done(rpq_l, rpq_r, elements, predicates_map,
                                             B_array1, B_array2, false, solution, n_predicates,
                                             is_negated_pred, n_operators, is_a_path, start);
@@ -3234,7 +3234,7 @@ public:
         std::cout << "Intersection" << std::endl;
         for(uint64_t i = 0; i < pos_pred_vec.size()-1; ++i) {
             if(i+1 < pos_pred_vec.size()
-               && pos_pred_vec[i].pos == pos_pred_vec[i+1].pos-1){
+               && pos_pred_vec[i].pos_e == pos_pred_vec[i+1].pos_b-1){
                 std::vector<std::pair<uint64_t, uint64_t>> solution;
 
                 high_resolution_clock::time_point start, stop;
@@ -3243,11 +3243,11 @@ public:
                 start = high_resolution_clock::now();
 
                // std::cout << "Splitting " << i << "-th mandatory pred by intersecting" << std::endl;
-                auto pred_rev = pred_reverse(pos_pred_vec[i+1].id_pred);
-                auto pred = pos_pred_vec[i].id_pred;
+                auto pred_rev = pred_reverse(pos_pred_vec[i+1].pred_b);
+                auto pred = pos_pred_vec[i].pred_e;
                 get_elements_intersection(pred_rev, pred, elements);
                // std::cout << "elements: " << elements.size()<< std::endl;
-                std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos);
+                std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos_e);
                 _rpq_var_to_var_splits_done(rpq_l, rpq_r, elements, predicates_map,
                                             B_array1, B_array2, true, solution, n_predicates,
                                             is_negated_pred, n_operators, is_a_path, start);
@@ -3262,11 +3262,11 @@ public:
                     solution.clear();
                     start = high_resolution_clock::now();
                     // std::cout << "Splitting " << i << "-th mandatory pred by intersecting" << std::endl;
-                    pred_rev = pred_reverse(pos_pred_vec[i+1].id_pred);
-                    pred = pos_pred_vec[i].id_pred;
+                    pred_rev = pred_reverse(pos_pred_vec[i+1].pred_b);
+                    pred = pos_pred_vec[i].pred_e;
                     get_elements_intersection(pred_rev, pred, elements);
                     // std::cout << "elements: " << elements.size()<< std::endl;
-                    std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos);
+                    std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos_e);
                     _rpq_var_to_var_splits_done(rpq_l, rpq_r, elements, predicates_map,
                                                 B_array1, B_array2, false, solution, n_predicates,
                                                 is_negated_pred, n_operators, is_a_path, start);
@@ -3319,10 +3319,10 @@ public:
             double total_time = 0.0;
             duration<double> time_span;
             start = high_resolution_clock::now();
-            auto pred = pos_pred_vec[i].id_pred;
+            auto pred = pos_pred_vec[i].pred_b;
             auto pred_rev = pred_reverse(pred);
             get_elements(pred_rev, elements);
-            std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos-1);
+            std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos_b-1);
             _rpq_const_to_var_splits_done(rpq_l, rpq_r, so_id, elements, predicates_map,
                                         B_array_l, B_array_r, true, solution, n_predicates,
                                         is_negated_pred, n_operators, is_a_path, start);
@@ -3336,10 +3336,10 @@ public:
             if(!rpq_l.empty() && !rpq_r.empty()) {
                 solution.clear();
                 start = high_resolution_clock::now();
-                pred = pos_pred_vec[i].id_pred;
+                pred = pos_pred_vec[i].pred_b;
                 pred_rev = pred_reverse(pred);
                 get_elements(pred_rev, elements);
-                std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos - 1);
+                std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos_b - 1);
                 _rpq_const_to_var_splits_done(rpq_l, rpq_r, so_id, elements, predicates_map,
                                               B_array_l, B_array_r, true, solution, n_predicates,
                                               is_negated_pred, n_operators, is_a_path, start);
@@ -3361,9 +3361,9 @@ public:
             double total_time = 0.0;
             duration<double> time_span;
             start = high_resolution_clock::now();
-            auto pred = pos_pred_vec[i].id_pred;
+            auto pred = pos_pred_vec[i].pred_e;
             get_elements(pred, elements);
-            std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos);
+            std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos_e);
             _rpq_const_to_var_splits_done(rpq_l, rpq_r, so_id, elements, predicates_map,
                                           B_array_l, B_array_r, true, solution, n_predicates,
                                           is_negated_pred, n_operators, is_a_path, start);
@@ -3375,9 +3375,9 @@ public:
             if(!rpq_l.empty() && !rpq_r.empty()) {
                 solution.clear();
                 start = high_resolution_clock::now();
-                pred = pos_pred_vec[i].id_pred;
+                pred = pos_pred_vec[i].pred_e;
                 get_elements(pred, elements);
-                std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos);
+                std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos_e);
                 _rpq_const_to_var_splits_done(rpq_l, rpq_r, so_id, elements, predicates_map,
                                               B_array_l, B_array_r, true, solution, n_predicates,
                                               is_negated_pred, n_operators, is_a_path, start);
@@ -3392,7 +3392,7 @@ public:
         std::cout << "Intersection" << std::endl;
         for(uint64_t i = 0; i < pos_pred_vec.size()-1; ++i) {
             if(i+1 < pos_pred_vec.size()
-               && pos_pred_vec[i].pos == pos_pred_vec[i+1].pos-1){
+               && pos_pred_vec[i].pos_e == pos_pred_vec[i+1].pos_b-1){
                 std::vector<std::pair<uint64_t, uint64_t>> solution;
 
                 high_resolution_clock::time_point start, stop;
@@ -3401,11 +3401,11 @@ public:
                 start = high_resolution_clock::now();
 
                 // std::cout << "Splitting " << i << "-th mandatory pred by intersecting" << std::endl;
-                auto pred_rev = pred_reverse(pos_pred_vec[i+1].id_pred);
-                auto pred = pos_pred_vec[i].id_pred;
+                auto pred_rev = pred_reverse(pos_pred_vec[i+1].pred_b);
+                auto pred = pos_pred_vec[i].pred_e;
                 get_elements_intersection(pred_rev, pred, elements);
                 // std::cout << "elements: " << elements.size()<< std::endl;
-                std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos);
+                std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos_e);
                 _rpq_const_to_var_splits_done(rpq_l, rpq_r, so_id, elements, predicates_map,
                                               B_array_l, B_array_r, true, solution, n_predicates,
                                               is_negated_pred, n_operators, is_a_path, start);
@@ -3420,11 +3420,11 @@ public:
                     solution.clear();
                     start = high_resolution_clock::now();
                     // std::cout << "Splitting " << i << "-th mandatory pred by intersecting" << std::endl;
-                    pred_rev = pred_reverse(pos_pred_vec[i+1].id_pred);
-                    pred = pos_pred_vec[i].id_pred;
+                    pred_rev = pred_reverse(pos_pred_vec[i+1].pred_b);
+                    pred = pos_pred_vec[i].pred_e;
                     get_elements_intersection(pred_rev, pred, elements);
                     // std::cout << "elements: " << elements.size()<< std::endl;
-                    std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos);
+                    std::tie(rpq_l, rpq_r) = rpqTree.splitRpq(pos_pred_vec[i].pos_b);
                     _rpq_const_to_var_splits_done(rpq_l, rpq_r, so_id, elements, predicates_map,
                                                   B_array_l, B_array_r, true, solution, n_predicates,
                                                   is_negated_pred, n_operators, is_a_path, start);
@@ -3465,7 +3465,7 @@ public:
             std::cout << "Startitng with subquery: " << (a.second.first_left ? "left" : "right") << std::endl;
         }
 
-#if RUN_QUERY
+#if 0
         std::string rpq_l, rpq_r;
         std::vector<uint64_t> elements;
         std::cout << "Source" << std::endl;
