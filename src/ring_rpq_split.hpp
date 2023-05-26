@@ -66,6 +66,8 @@ class ring_rpq_split {
     uint64_t max_O;
     uint64_t nTriples;  // number of triples
 
+    uint64_t paths;
+
 public:
 
 
@@ -762,6 +764,7 @@ private:
             //<< interval.second << ";" << subj_vec.size() << std::endl;
             //PART3: Map the range of each subject to the range of objects
             //t2 = std::chrono::high_resolution_clock::now();
+            paths += subj_vec.size();
             for (uint64_t j = 0; j < subj_vec.size(); j++) {
                 push_merge_interval(ist_container, subj_vec[j]);
                 if (A.atFinal(get<1>(subj_vec[j]), BWD)) {
@@ -981,6 +984,8 @@ private:
             }*/
 
         }
+
+        std::cout << "weight: " << sel_info.weight << std::endl;
 
         //Computing the elements and splitting the RPQ
         first_left = sel_min.first_left;
@@ -2857,6 +2862,7 @@ public:
 
 
         //auto t0 = high_resolution_clock::now();
+        paths = 0;
         RpqTree rpqTree(rpq, predicates_map, real_max_P);
         auto mand_data = rpqTree.getMandatoryData();
         //auto t1 = high_resolution_clock::now();
@@ -2888,6 +2894,7 @@ public:
             _rpq_var_to_var_splits_done(rpq_l, rpq_r, elements, predicates_map,
                                         B_array_l, B_array_r, first_left, solution, n_predicates,
                                         is_negated_pred, n_operators, is_a_path, start);
+            std::cout << "paths: " << paths << std::endl;
         }
     }
 
