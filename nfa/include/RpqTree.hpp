@@ -94,7 +94,7 @@ private:
     Tree *tree;
     Tree **pos;
     int m;
-    std::vector<int> pos_id;
+    int* pos_id;
     PatternData patternData;
 };
 

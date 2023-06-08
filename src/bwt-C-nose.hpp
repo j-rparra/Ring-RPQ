@@ -259,8 +259,6 @@ class bwt_nose
         }
 
 
-
-
         template<typename word_t>
         void mark(uint64_t c, std::vector<word_t>& B_wt, word_t B_c) const
         {
