@@ -104,7 +104,6 @@ namespace sdsl {
     template<class word_t>
     void markD(uint64_t c, uint64_t max_level, initializable_array<word_t>& D_wt, word_t D){
 
-
         uint64_t pos = 1, mid;
         //TODO check if the range is [1, n] or [0, n-1]
         range_type sigma = range_type{0, (1ULL << max_level) -1};
@@ -120,9 +119,10 @@ namespace sdsl {
         }
         word_t tmp = D_wt.atPos(pos);
         D = D & ~tmp;
+        //std::cout << "D_wt[pos-1]" << D_wt[pos-1] << std::endl;
         D_wt[pos] = tmp | D;
         while (pos != 1){
-            tmp = (pos & 0x1) ? (D_wt[pos] & D_wt[pos-1]) : (D_wt[pos] & D_wt[pos+1]);
+            tmp = (pos & 0x1) ? (D_wt.atPos(pos) & D_wt.atPos(pos-1)) : D_wt.atPos(pos) & D_wt.atPos(pos+1);
             if(!tmp) return; //Empty -> nothing to do
             D_wt[pos >> 1] = tmp; //set parent
             pos = pos >> 1; //move to parent

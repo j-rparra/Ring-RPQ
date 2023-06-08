@@ -1501,28 +1501,38 @@ public:
                     high_resolution_clock::time_point start) {
 
         if (query_type == VAR_TO_CONST || query_type == CONST_TO_VAR) {
-            // primero voy a asumir que los predicados no son negados
-            uint64_t i, pred_1, pred_2;
+
+            uint64_t i, pred_fixed, pred_open; //asumo que es CONST_TO_VAR
             for (i = 0; rpq.at(i) != '>'; ++i);
 
-            if (query_type == VAR_TO_CONST) {
-                pred_1 = predicates_map[rpq.substr(0, i + 1)];
-                pred_2 = real_max_P + predicates_map[rpq.substr(i + 1, rpq.size() - 1)];  // actually, ^pred_2
-            } else {
-                pred_1 = real_max_P + predicates_map[rpq.substr(i + 1, rpq.size() - 1)];  // actually, ^pred_2
-                pred_2 = predicates_map[rpq.substr(0, i + 1)];
-            }
+            bool negated_p1 = rpq.at(1) == '%';
+            bool negated_p2 = rpq.at(i + 2) == '%';
+
+            if (negated_p1) {
+                pred_fixed = real_max_P + predicates_map["<" + rpq.substr(2, i - 1)]; //^pred_fixed
+            } else
+                pred_fixed = predicates_map[rpq.substr(0, i + 1)]; //pred_fixed
+            if (negated_p2)
+                pred_open = predicates_map["<" + rpq.substr(i + 3, rpq.size() - 1)]; //^(^pred_open)
+            else
+                pred_open = real_max_P + predicates_map[rpq.substr(i + 1, rpq.size() - 1)];  //^pred_open
+
+             if(query_type == VAR_TO_CONST) std::swap(pred_fixed, pred_open);
+
+
+            std::pair<uint64_t, uint64_t>
+                    Is_p1 = std::pair<uint64_t, uint64_t>(L_S.get_C(pred_open),
+                                                          L_S.get_C(pred_open + 1) - 1);
 
             // first, backward search for object ^pred_2, starting from the L_P interval of object
-            std::pair<uint64_t, uint64_t> Is_p2 = L_P.backward_step(L_P.get_C(object), L_P.get_C(object + 1) - 1,
-                                                                    pred_2);
-            uint64_t c = L_S.get_C(pred_2);
+            std::pair<uint64_t, uint64_t> Is_p2 = L_P.backward_step(L_P.get_C(object),
+                                                                    L_P.get_C(object + 1) - 1,
+                                                                    pred_fixed);
+            uint64_t c = L_S.get_C(pred_fixed);
             Is_p2.first += c;
             Is_p2.second += c;
 
-            std::pair<uint64_t, uint64_t>
-                    Is_p1 = std::pair<uint64_t, uint64_t>(L_S.get_C(pred_1),
-                                                          L_S.get_C(pred_1 + 1) - 1);
+
             std::vector<std::pair<uint64_t, uint64_t>> z_values;
             std::vector<std::array<uint64_t, 2ul>> ranges;
 
@@ -1531,10 +1541,9 @@ public:
             z_values = L_S.intersect(ranges);
 
             std::vector<uint64_t> values_s;
-            if (query_type == VAR_TO_CONST)
-                pred_1 += real_max_P; // now it becomes ^pred_1
-            else
-                pred_1 = pred_2 + real_max_P;
+
+            pred_open = (pred_open > real_max_P) ? pred_open - real_max_P : pred_open + real_max_P;
+
             std::unordered_set<std::pair<uint64_t, uint64_t>> o_set;
             std::pair<std::unordered_set<std::pair<uint64_t, uint64_t>>::iterator, bool> ret;
 
@@ -1542,8 +1551,8 @@ public:
             auto total_time = duration_cast<seconds>(stop - start).count();
             auto time_out = (total_time > TIME_OUT);
             for (i = 0; !time_out && i < z_values.size(); ++i) {
-                Is_p1 = L_P.backward_step(L_P.get_C(z_values[i].first), L_P.get_C(z_values[i].first + 1) - 1, pred_1);
-                c = L_S.get_C(pred_1);
+                Is_p1 = L_P.backward_step(L_P.get_C(z_values[i].first), L_P.get_C(z_values[i].first + 1) - 1, pred_open);
+                c = L_S.get_C(pred_open);
                 Is_p1.first += c;
                 Is_p1.second += c;
                 values_s.clear();
