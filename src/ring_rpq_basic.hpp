@@ -1286,8 +1286,13 @@ public:
                 values_y.clear();
                 L_S.all_values_in_range_bounded(I_S.first, I_S.second, values_y, bound_aux);
                 bound_aux -= values_y.size();
-                for (uint64_t j = 0; j < values_y.size() and output.size() < bound; ++j)
-                    output.push_back(std::pair<uint64_t, uint64_t>(object, values_y[j]));
+                for (uint64_t j = 0; j < values_y.size() and output.size() < bound; ++j){
+                    if (is_negated) {
+                        output.push_back(std::pair<uint64_t, uint64_t>(values_y[j], object));
+                    } else {
+                        output.push_back(std::pair<uint64_t, uint64_t>(object, values_y[j]));
+                    }
+                }
             }
         }
     };
@@ -1353,7 +1358,11 @@ public:
                 values_y.clear();
                 values_y = L_S.all_values_in_range(I_S.first, I_S.second);
                 for (uint64_t j = 0; !time_out && j < values_y.size() ; ++j){
-                    output.push_back(std::pair<uint64_t, uint64_t>(object, values_y[j]));
+                    if (is_negated) {
+                        output.push_back(std::pair<uint64_t, uint64_t>(values_y[j], object));
+                    } else {
+                        output.push_back(std::pair<uint64_t, uint64_t>(object, values_y[j]));
+                    }
                     stop = high_resolution_clock::now();
                     total_time = duration_cast<seconds>(stop - start).count();
                     time_out = (total_time > TIME_OUT);
@@ -2289,7 +2298,7 @@ public:
         query2 = parse_reverse(rpq, i, predicates_map, real_max_P);
 
         RpqAutomata A2(query2, predicates_map);
-        m = A.getB();
+        m = A2.getB();
         for (std::unordered_map<uint64_t, uint64_t>::iterator it = m.begin(); it != m.end(); it++)
             L_P.mark<word_t>(it->first, B_array, (word_t) it->second);
 
@@ -2300,12 +2309,11 @@ public:
         for (std::unordered_map<uint64_t, uint64_t>::iterator it = m.begin(); it != m.end(); it++)
             L_P.unmark<word_t>(it->first, B_array);
 
-        for (std::unordered_map<uint64_t, uint64_t>::iterator it = m.begin(); it != m.end(); it++)
-            L_P.mark<word_t>(it->first, B_array, (word_t) it->second);
-
-
         bool time_out = false;
         m = A.getB();
+
+        for (std::unordered_map<uint64_t, uint64_t>::iterator it = m.begin(); it != m.end(); it++)
+            L_P.mark<word_t>(it->first, B_array, (word_t) it->second);
         if(all){
             uint64_t sigma = (max_O > max_S) ? max_O : max_S;
             for (i = 1; !time_out && i < sigma; i++)
