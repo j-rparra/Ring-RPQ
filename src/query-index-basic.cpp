@@ -2,30 +2,49 @@
 #include "ring_rpq_basic.hpp"
 #include <fstream>
 #include <sdsl/construct.hpp>
+#include "Config.hpp"
 
 using namespace std;
 
 using namespace std::chrono;
 using timer = std::chrono::high_resolution_clock;
 
+int main(int argc, char **argv)
+{
 
-int main(int argc, char **argv) {
-
-    if (argc < 3) {
+    if (argc < 3)
+    {
         cerr << "  Usage: " << argv[0] << " <ring-index-file> <queries-file>" << endl;
         exit(1);
+    }
+
+    // handle -o
+    ofstream out;
+    char *output_file = getCmdOption(argv, argv + argc, "-o");
+    string output_file_pairs;
+    if (cmdOptionExists(argv, argv + argc, "--pairs"))
+    {
+        output_file_pairs = (string)output_file;
+        output_file_pairs.append("_pairs");
+        out.open(output_file_pairs, ofstream::out | ofstream::trunc);
+        out.close();
+    }
+    if (output_file)
+    {
+        out.open(output_file, ofstream::out | ofstream::trunc);
+        out.close();
     }
 
     ring_rpq_basic_bfs graph;
 
     graph.load(string(argv[1]));
 
-    cout << "  Index loaded " << (float) graph.size() / (graph.n_triples() / 2) << " bytes per triple" << endl;
+    cout << "  Index loaded " << (float)graph.size() / (graph.n_triples() / 2) << " bytes per triple" << endl;
 
     std::ifstream ifs_SO(string(argv[1]) + ".SO", std::ifstream::in);
     std::ifstream ifs_P(string(argv[1]) + ".P", std::ifstream::in);
     std::ifstream ifs_q(argv[2], std::ifstream::in);
-    //std::ofstream ofs_SO("SO", std::ofstream::out);
+    // std::ofstream ofs_SO("SO", std::ofstream::out);
 
     std::unordered_map<string, uint64_t> map_SO;
     std::unordered_map<string, uint64_t> map_P;
@@ -33,22 +52,24 @@ int main(int argc, char **argv) {
     uint64_t id;
     string s_aux, data;
 
-    while (std::getline(ifs_SO, data)) {
+    while (std::getline(ifs_SO, data))
+    {
         auto space = data.find(' ');
         id = std::stoull(data.substr(0, space));
-        s_aux = data.substr(space+1);
+        s_aux = data.substr(space + 1);
         map_SO[s_aux] = id;
     }
 
-    while (std::getline(ifs_P, data)) {
+    while (std::getline(ifs_P, data))
+    {
         auto space = data.find(' ');
         id = std::stoull(data.substr(0, space));
-        s_aux = data.substr(space+1);
+        s_aux = data.substr(space + 1);
         map_P[s_aux] = id;
     }
 
-
-    typedef struct {
+    typedef struct
+    {
         uint64_t id;
         uint64_t beg;
         uint64_t end;
@@ -72,7 +93,8 @@ int main(int argc, char **argv) {
 
     uint64_t bound = 1000000; // bound for the number of results
 
-    do {
+    do
+    {
         getline(ifs_q, line);
         pred_map.clear();
         query.clear();
@@ -91,68 +113,86 @@ int main(int argc, char **argv) {
         is_a_path = true;
         is_or = true;
 
-        if (line.at(0) == '?') {
+        if (line.at(0) == '?')
+        {
             flag_s = false;
             X >> s_aux;
-            if (line.at(line.size() - 3) == '?') {
+            if (line.at(line.size() - 3) == '?')
+            {
                 flag_o = false;
                 line.pop_back();
                 line.pop_back();
                 line.pop_back();
-            } else {
+            }
+            else
+            {
                 flag_o = true;
                 string s_aux_2;
                 uint64_t i = line.size() - 1;
 
-                while (line.at(i) != ' ') i--;
-                i++;
-                while (i < line.size() - 1/*line.at(i) != '>'*/)
-                    s_aux_2 += line.at(i++);
-
-                if (map_SO.find(s_aux_2) != map_SO.end()) {
-                    o_id = map_SO[s_aux_2];
-                    i = 0;
-                    //ofs_SO << o_id << " " << s_aux_2 << endl;
-                    while (i < s_aux_2.size() + 1) {
-                        line.pop_back();
-                        i++;
-                    }
-                } else
-                    skip_flag = true;
-
-            }
-        } else {
-            flag_s = true;
-            X >> s_aux;
-            if (map_SO.find(s_aux) != map_SO.end()) {
-                s_id = map_SO[s_aux];
-                //ofs_SO << s_id << " " << s_aux << endl;
-            } else
-                skip_flag = true;
-
-            if (line.at(line.size() - 3) == '?') {
-                flag_o = false;
-                line.pop_back();
-                line.pop_back();
-                line.pop_back();
-            } else {
-                flag_o = true;
-                string s_aux_2;
-                uint64_t i = line.size() - 2;
-                while (line.at(i) != ' ') i--;
+                while (line.at(i) != ' ')
+                    i--;
                 i++;
                 while (i < line.size() - 1 /*line.at(i) != '>'*/)
                     s_aux_2 += line.at(i++);
 
-                if (map_SO.find(s_aux_2) != map_SO.end()) {
+                if (map_SO.find(s_aux_2) != map_SO.end())
+                {
                     o_id = map_SO[s_aux_2];
-                    //ofs_SO << o_id << " " << s_aux_2 << endl;
                     i = 0;
-                    while (i < s_aux_2.size() + 1) {
+                    // ofs_SO << o_id << " " << s_aux_2 << endl;
+                    while (i < s_aux_2.size() + 1)
+                    {
                         line.pop_back();
                         i++;
                     }
-                } else
+                }
+                else
+                    skip_flag = true;
+            }
+        }
+        else
+        {
+            flag_s = true;
+            X >> s_aux;
+            if (map_SO.find(s_aux) != map_SO.end())
+            {
+                s_id = map_SO[s_aux];
+                // ofs_SO << s_id << " " << s_aux << endl;
+            }
+            else
+                skip_flag = true;
+
+            if (line.at(line.size() - 3) == '?')
+            {
+                flag_o = false;
+                line.pop_back();
+                line.pop_back();
+                line.pop_back();
+            }
+            else
+            {
+                flag_o = true;
+                string s_aux_2;
+                uint64_t i = line.size() - 2;
+                while (line.at(i) != ' ')
+                    i--;
+                i++;
+                while (i < line.size() - 1 /*line.at(i) != '>'*/)
+                    s_aux_2 += line.at(i++);
+
+                if (map_SO.find(s_aux_2) != map_SO.end())
+                {
+                    o_id = map_SO[s_aux_2];
+                    // ofs_SO << o_id << " " << s_aux_2 << endl;
+                    i = 0;
+                    while (i < s_aux_2.size() + 1)
+                    {
+                        line.pop_back();
+                        i++;
+                    }
+                }
+                else
                     skip_flag = true;
             }
         }
@@ -160,48 +200,67 @@ int main(int argc, char **argv) {
         stringstream X_a(line);
         X_a >> s_aux;
 
-        if (!skip_flag) {
+        if (!skip_flag)
+        {
             X_a >> s_aux;
-            do {
-                for (uint64_t i = 0; i < s_aux.size(); i++) {
-                    if (s_aux.at(i) == '<') {
+            do
+            {
+                for (uint64_t i = 0; i < s_aux.size(); i++)
+                {
+                    if (s_aux.at(i) == '<')
+                    {
                         std::string s_aux_2, s_aux_3;
                         s_aux_2.clear();
 
-                        while (s_aux.at(i) != '>') {
+                        while (s_aux.at(i) != '>')
+                        {
                             s_aux_2 += s_aux.at(i++);
                         }
                         s_aux_2 += s_aux.at(i);
-                        if (s_aux_2[1] == '%') {
+                        if (s_aux_2[1] == '%')
+                        {
                             s_aux_3 = "<" + s_aux_2.substr(2, s_aux_2.size() - 1);
                             is_negated_pred = true;
-                        } else {
+                        }
+                        else
+                        {
                             s_aux_3 = s_aux_2;
                         }
 
-                        if (map_P.find(s_aux_3) != map_P.end()) {
+                        if (map_P.find(s_aux_3) != map_P.end())
+                        {
                             query += s_aux_2;
                             last_pred_id = pred_map[s_aux_3] = map_P[s_aux_3];
                             n_predicates++;
                             if (n_predicates == 1)
                                 first_pred_id = pred_map[s_aux_3];
-                        } else {
+                        }
+                        else
+                        {
                             cout << q << ";0;0" << endl;
                             skip_flag = true;
                             break;
                         }
-                    } else {
-                        if (s_aux.at(i) != '/' and s_aux.at(i) != ' ') {
+                    }
+                    else
+                    {
+                        if (s_aux.at(i) != '/' and s_aux.at(i) != ' ')
+                        {
                             n_operators++;
                             if (s_aux.at(i) == '^')
                                 query += '%';
-                            else {
+                            else
+                            {
                                 query += s_aux.at(i);
-                                if (s_aux.at(i) != '(' and s_aux.at(i) != ')') query_type += s_aux.at(i);
+                                if (s_aux.at(i) != '(' and s_aux.at(i) != ')')
+                                    query_type += s_aux.at(i);
                                 is_a_path = false;
-                                if (s_aux.at(i) != '|') is_or = false;
+                                if (s_aux.at(i) != '|')
+                                    is_or = false;
                             }
-                        } else if (s_aux.at(i) == '/') {
+                        }
+                        else if (s_aux.at(i) == '/')
+                        {
                             n_operators++;
                             query_type += s_aux.at(i);
                         }
@@ -209,63 +268,129 @@ int main(int argc, char **argv) {
                 }
             } while (!skip_flag and X_a >> s_aux);
 
-            if (!skip_flag) {
+            if (!skip_flag)
+            {
                 start = high_resolution_clock::now();
-                if (!flag_s and !flag_o) {
+                
+                  if (!flag_s and !flag_o)
+                {
                     if (query_type.size() == 0)
-                        graph.rpq_var_to_var_so(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
-                                                n_operators, false);
+                        // graph.rpq_var_to_var_so(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                        //                         n_operators, false);
+                        graph.rpq_var_to_var2(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                                              n_operators, false);
                     else if (query_type == "/*")
                         /*graph.rpq_var_to_var_os(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
                                                 n_operators, false);*/
-                        graph.rpq_var_to_var_so(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
-                                                n_operators, false);
+                        // graph.rpq_var_to_var_so(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                        //                         n_operators, false);
+                        graph.rpq_var_to_var2(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                                              n_operators, false);
                     else if (query_type == "+" or query_type == "*")
-                        graph.rpq_var_to_var_so(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
-                                                n_operators, false);
+                        // graph.rpq_var_to_var_so(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                        //                         n_operators, false);
+                        graph.rpq_var_to_var2(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                                              n_operators, false);
                     else if (query_type == "|")
+                    {
+                        // cout << "caso aun sin arreglar" << endl;
                         graph.or_query_var_to_var(query, 2, pred_map, query_output);
+                    }
                     else if (query_type == "||")
+                    {
+                        // cout << "caso aun sin arreglar" << endl;
                         graph.or_query_var_to_var(query, 3, pred_map, query_output);
+                    }
                     else if (is_or and n_predicates > 3)
+                    {
+                        // cout << "caso aun sin arreglar" << endl;
                         graph.or_query_var_to_var(query, n_predicates, pred_map, query_output);
+                    }
                     else if (query_type[query_type.size() - 1] == '*' and query_type[0] != '*')
                         /*graph.rpq_var_to_var_os(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
                                                 n_operators, false);*/
-                        graph.rpq_var_to_var_so(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
-                                                n_operators, false);
+                        // graph.rpq_var_to_var_so(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                        //                         n_operators, false);
+                        graph.rpq_var_to_var2(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                                              n_operators, false);
                     else if (query_type[0] == '*' or query_type[0] == '+')
                         /*graph.rpq_var_to_var_so(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
                                                 n_operators, false);*/
-                        graph.rpq_var_to_var_os(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
-                                                n_operators, false);
+                        // graph.rpq_var_to_var_os(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                        //                         n_operators, false);
+                        graph.rpq_var_to_var2(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                                              n_operators, false);
                     else if (graph.pred_selectivity(first_pred_id) <= graph.pred_selectivity(last_pred_id))
-                        graph.rpq_var_to_var_so(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
-                                                n_operators, is_a_path);
-                        /*graph.rpq_var_to_var_split(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
-                                                   n_operators, is_a_path, bound);*/
-                    else
-                        graph.rpq_var_to_var_os(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
-                                                n_operators, is_a_path);
-                        /*graph.rpq_var_to_var_split(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                        // graph.rpq_var_to_var_so(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                        //                         n_operators, is_a_path);
+                        graph.rpq_var_to_var2(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                                              n_operators, false);
+                    /*graph.rpq_var_to_var_split(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
                                                n_operators, is_a_path, bound);*/
-                } else {
-                    if (flag_s) {
-                        graph.rpq_const_s_to_var_o(query, pred_map, B_array, s_id, query_output, n_predicates,
-                                                   is_negated_pred, n_operators, is_a_path);
-                    } else {
-                        graph.rpq_var_s_to_const_o(query, pred_map, B_array, o_id, query_output, n_predicates,
-                                                   is_negated_pred, n_operators, is_a_path);
+                    else
+                        // graph.rpq_var_to_var_os(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                        //                         n_operators, is_a_path);
+                        graph.rpq_var_to_var2(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                                              n_operators, false);
+                    /*graph.rpq_var_to_var_split(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                                           n_operators, is_a_path, bound);*/
+                }
+                else
+                {
+                    if (flag_s) // caso "const ?y"
+
+                    {
+                        // graph.rpq_const_s_to_var_o(query, pred_map, B_array, s_id, query_output, n_predicates,
+                        //                            is_negated_pred, n_operators, is_a_path);
+                        graph.rpq_one_const(query, pred_map, B_array, s_id, query_output, n_predicates,
+                                            is_negated_pred, n_operators, is_a_path, true);
+                    }
+                    else // caso "?x const"
+                    {
+                        // graph.rpq_var_s_to_const_o(query, pred_map, B_array, o_id, query_output, n_predicates,
+                        //                            is_negated_pred, n_operators, is_a_path);
+                        graph.rpq_one_const(query, pred_map, B_array, o_id, query_output, n_predicates,
+                                            is_negated_pred, n_operators, is_a_path, false);
                     }
                 }
+              
+              
+                
                 stop = high_resolution_clock::now();
                 time_span = duration_cast<microseconds>(stop - start);
                 total_time = time_span.count();
 
-                cout << q << ";" << query_output.size() << ";" << (uint64_t) (total_time * 1000000000ULL) << endl;
-                
-            } else skip_flag = false;
-        } else {
+                cout << q << line << ";" << query_output.size() << ";" << (uint64_t)(total_time * 1000000000ULL) << endl;
+             
+            //   for (pair<uint64_t, uint64_t> pair : query_output)
+            //         cout << pair.first << "-" << pair.second << endl;
+
+
+             if (output_file)
+                {
+                    // write times + number of results
+                    out.open(output_file, std::ios::app);
+                    out << query_output.size() << "," << (uint64_t)(total_time * 1000000000ULL) << endl;
+                    out.close();
+
+                    // write times + number of results + pairs obtained
+                    if (cmdOptionExists(argv, argv + argc, "--pairs"))
+                    {
+                        out.open(output_file_pairs, std::ios::app);
+                        out << q << ": " << line << endl;
+                        out << query_output.size() << "," << (uint64_t)(total_time * 1000000000ULL) << endl;
+                        for (pair<uint64_t, uint64_t> pair : query_output)
+                            out << pair.first << "-" << pair.second << endl;
+                        out.close();
+                    }
+                }
+            
+            }
+            else
+                skip_flag = false;
+        }
+        else
+        {
             cout << q << ";0;0" << endl;
             skip_flag = false;
         }
@@ -273,4 +398,3 @@ int main(int argc, char **argv) {
 
     return 0;
 }
-
