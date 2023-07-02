@@ -82,16 +82,13 @@ int main(int argc, char **argv)
     std::vector<std::pair<uint64_t, uint64_t>> query_output;
     std::vector<word_t> B_array(4 * graph.n_labels(), 0);
 
-    high_resolution_clock::time_point start, stop;
-    double total_time = 0.0;
-    duration<double> time_span;
-
     uint64_t n_predicates, n_operators;
     bool is_negated_pred, is_a_path, is_or;
     std::string query_type;
     uint64_t first_pred_id, last_pred_id;
 
-    uint64_t bound = 1000000; // bound for the number of results
+    high_resolution_clock::time_point stop; // start, stop;
+    double total_time = 0.0; 
 
     do
     {
@@ -270,9 +267,8 @@ int main(int argc, char **argv)
 
             if (!skip_flag)
             {
-                start = high_resolution_clock::now();
-                
-                  if (!flag_s and !flag_o)
+                query_start = high_resolution_clock::now();
+                if (!flag_s and !flag_o)
                 {
                     if (query_type.size() == 0)
                         // graph.rpq_var_to_var_so(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
@@ -353,20 +349,16 @@ int main(int argc, char **argv)
                                             is_negated_pred, n_operators, is_a_path, false);
                     }
                 }
-              
-              
-                
                 stop = high_resolution_clock::now();
-                time_span = duration_cast<microseconds>(stop - start);
+                time_span = duration_cast<microseconds>(stop - query_start);
                 total_time = time_span.count();
 
                 cout << q << line << ";" << query_output.size() << ";" << (uint64_t)(total_time * 1000000000ULL) << endl;
-             
-            //   for (pair<uint64_t, uint64_t> pair : query_output)
-            //         cout << pair.first << "-" << pair.second << endl;
 
+                //   for (pair<uint64_t, uint64_t> pair : query_output)
+                //         cout << pair.first << "-" << pair.second << endl;
 
-             if (output_file)
+                if (output_file)
                 {
                     // write times + number of results
                     out.open(output_file, std::ios::app);
@@ -384,7 +376,6 @@ int main(int argc, char **argv)
                         out.close();
                     }
                 }
-            
             }
             else
                 skip_flag = false;

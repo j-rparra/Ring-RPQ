@@ -1,6 +1,11 @@
 #ifndef QUERY_CONFIG
 #define QUERY_CONFIG
 
+#include <chrono>  
+using namespace std::chrono;
+
+high_resolution_clock::time_point query_start;
+duration<double> time_span;
 
 // type for array D (see the paper)
 typedef uint16_t word_t;
