@@ -353,7 +353,7 @@ int main(int argc, char **argv)
                 time_span = duration_cast<microseconds>(stop - query_start);
                 total_time = time_span.count();
 
-                cout << q << line << ";" << query_output.size() << ";" << (uint64_t)(total_time * 1000000000ULL) << endl;
+                cout << q  << ";" << query_output.size() << ";" << (uint64_t)(total_time * 1000000000ULL) << endl;
 
                 //   for (pair<uint64_t, uint64_t> pair : query_output)
                 //         cout << pair.first << "-" << pair.second << endl;
