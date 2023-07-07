@@ -566,7 +566,7 @@ public:
         L_S.save(filename + ".bwts");
         L_P.save(filename + ".bwtp");
 
-        std::ofstream ofs(filename + ".nTriples");
+        std::ofstream ofs(filename + ".nTriplesv2");
         ofs << nTriples << endl;
         ofs << real_max_P << endl;
         ofs << real_max_S << endl;
@@ -583,7 +583,7 @@ public:
         // cout << "Loading L_P" << endl; fflush(stdout);
         L_P.load(filename + ".bwtp");
         // cout << "Loading done" << endl; fflush(stdout);
-        std::ifstream ifs(filename + ".nTriples");
+        std::ifstream ifs(filename + ".nTriplesv2");
         ifs >> nTriples;
         ifs >> real_max_P;
         ifs >> real_max_S;
