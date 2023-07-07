@@ -290,17 +290,23 @@ int main(int argc, char **argv)
                     else if (query_type == "|")
                     {
                         // cout << "caso aun sin arreglar" << endl;
-                        graph.or_query_var_to_var(query, 2, pred_map, query_output);
+                        // graph.or_query_var_to_var(query, 2, pred_map, query_output);
+                        graph.rpq_var_to_var2(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                                              n_operators, false);
                     }
                     else if (query_type == "||")
                     {
                         // cout << "caso aun sin arreglar" << endl;
-                        graph.or_query_var_to_var(query, 3, pred_map, query_output);
+                        // graph.or_query_var_to_var(query, 3, pred_map, query_output);
+                        graph.rpq_var_to_var2(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                                              n_operators, false);
                     }
                     else if (is_or and n_predicates > 3)
                     {
                         // cout << "caso aun sin arreglar" << endl;
-                        graph.or_query_var_to_var(query, n_predicates, pred_map, query_output);
+                        // graph.or_query_var_to_var(query, n_predicates, pred_map, query_output);
+                        graph.rpq_var_to_var2(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,
+                                              n_operators, false);
                     }
                     else if (query_type[query_type.size() - 1] == '*' and query_type[0] != '*')
                         /*graph.rpq_var_to_var_os(query, pred_map, B_array, query_output, n_predicates, is_negated_pred,

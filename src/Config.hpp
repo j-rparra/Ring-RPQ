@@ -17,7 +17,9 @@
 using namespace sdsl;
 using namespace std;
  
-uint64_t TIME_OUT = 0;     // timeout for queries in seconds, 0 for no timeout
+// #define TIME_OUT 600
+
+uint64_t TIME_OUT = 600;     // timeout for queries in seconds, 0 for no timeout
 bool OUTPUT_PAIRS = true; // if true, -o also saves the pairs obtained
 
 

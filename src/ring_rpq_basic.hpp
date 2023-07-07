@@ -842,17 +842,19 @@ private:
 
         while (!ist_container.empty())
         {
-            // check timeout
+
+            auto ist_top = first_element(ist_container);
+            ist_container.pop();
+            next_step_const_to_var(A, B_array, D_array, ist_top.current_D, ist_top.interval,
+                                   initial_object, ist_container, solutions, const_to_var);
+
+             
             if (TIME_OUT)
             {
                 time_span = duration_cast<microseconds>(high_resolution_clock::now() - query_start);
                 if (time_span.count() > TIME_OUT)
                     return;
             }
-            auto ist_top = first_element(ist_container);
-            ist_container.pop();
-            next_step_const_to_var(A, B_array, D_array, ist_top.current_D, ist_top.interval,
-                                   initial_object, ist_container, solutions, const_to_var);
         }
         return false;
     };
@@ -900,11 +902,17 @@ private:
                 }
                 return false;
             }
+
+            if (TIME_OUT)
+            {
+                time_span = duration_cast<microseconds>(high_resolution_clock::now() - query_start);
+                if (time_span.count() > TIME_OUT)
+                    return;
+            }
         }
         return false;
     };
 
- 
 public:
     void or_query_var_to_var(const std::string &rpq, uint64_t n_or,
                              unordered_map<std::string, uint64_t> &predicates_map,
@@ -960,6 +968,7 @@ public:
             // For each ?x obtained, search for ?y p ?x using backward search
             for (i = 0; i < values_x.size(); i++)
             {
+
                 object = values_x[i];
                 I_S = L_P.backward_step(L_P.get_C(object), L_P.get_C(object + 1) - 1, pred);
                 c = L_S.get_C(pred);
@@ -984,6 +993,12 @@ public:
                         if (ret.second == true)
                             output.push_back(std::pair<uint64_t, uint64_t>(object, values_y[j]));
                     }
+                }
+                if (TIME_OUT)
+                {
+                    time_span = duration_cast<microseconds>(high_resolution_clock::now() - query_start);
+                    if (time_span.count() > TIME_OUT)
+                        return;
                 }
             }
         }
@@ -1036,6 +1051,7 @@ public:
             // For each ?x obtained, search for ?y p ?x using backward search
             for (uint64_t i = 0; i < values_x.size(); i++)
             {
+
                 object = values_x[i];
                 I_S = L_P.backward_step(L_P.get_C(object), L_P.get_C(object + 1) - 1, predicate);
                 c = L_S.get_C(predicate);
@@ -1053,6 +1069,12 @@ public:
                     {
                         output.push_back(std::pair<uint64_t, uint64_t>(object, values_y[j]));
                     }
+                }
+                if (TIME_OUT)
+                {
+                    time_span = duration_cast<microseconds>(high_resolution_clock::now() - query_start);
+                    if (time_span.count() > TIME_OUT)
+                        return;
                 }
             }
         }
@@ -1115,6 +1137,13 @@ public:
 
             for (i = 0; i < z_values.size(); ++i)
             {
+                if (TIME_OUT)
+                {
+                    time_span = duration_cast<microseconds>(high_resolution_clock::now() - query_start);
+                    if (time_span.count() > TIME_OUT)
+                        return;
+                }
+
                 Is_p1 = L_P.backward_step(L_P.get_C(z_values[i].first), L_P.get_C(z_values[i].first + 1) - 1, pred_open);
                 c = L_S.get_C(pred_open);
                 Is_p1.first += c;
@@ -1218,8 +1247,7 @@ public:
             }
         }
     };
- 
-    
+
     void rpq_one_const(const std::string &rpq,
                        unordered_map<std::string, uint64_t> &predicates_map, // ToDo: esto debería ser una variable miembro de la clase
                        std::vector<word_t> &B_array,
@@ -1362,13 +1390,14 @@ public:
 
         for (uint64_t i = 0; i < objects_var_to_var.size(); i++)
         {
+
+            _rpq_const_s_to_var_o(A2, predicates_map, B_array, objects_var_to_var[i], output_subjects, true, empty_path_is_solution);
             if (TIME_OUT)
             {
                 time_span = duration_cast<microseconds>(high_resolution_clock::now() - query_start);
                 if (time_span.count() > TIME_OUT)
                     return;
             }
-            _rpq_const_s_to_var_o(A2, predicates_map, B_array, objects_var_to_var[i], output_subjects, true, empty_path_is_solution);
         }
 
         for (std::unordered_map<uint64_t, uint64_t>::iterator it = m.begin(); it != m.end(); it++)
